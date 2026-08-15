@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Skill Matches - SkillMatch{% endblock %}
+
+{% block content %}
+<div class="matches-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Project Skill Matches</h1>
+      <p class="page-subtitle">Projects ranked by how well your skills match their requirements.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('profile') }}" class="nav-btn-outline">
+        ⚙️ Manage My Skills
+      </a>
+    </div>
+  </div>
+
+  <!-- User's Active Skills Summary Banner -->
+  <div class="user-skills-banner">
+    <div>
+      <strong style="color: var(--text-primary); font-size: 1rem; display: block; margin-bottom: 0.35rem;">
+        Your Active Profile Skills ({{ user_skills|length }})
+      </strong>
+      {% if user_skills %}
+        <div class="skills-container" style="margin-bottom: 0;">
+          {% for skill in user_skills %}
+            <span class="skill-chip" style="background: rgba(99, 102, 241, 0.25);">
+              ✓ {{ skill.skill_name }}
+            </span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+          You haven't added any skills yet. <a href="{{ url_for('profile') }}" style="color: var(--primary);">Add skills to your profile</a> to calculate your match scores!
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Matches Grid -->
+  {% if projects %}
+    <div class="matches-grid">
+      {% for project in projects %}
+        <div class="match-card">
+          
+          <div class="project-header">
+            <h2 class="project-title">{{ project.title }}</h2>
+            
+            <!-- Dynamic Match Percentage Badge -->
+            {% if project.match_percentage >= 75 %}
+              <span class="match-badge match-high">🎯 {{ project.match_percentage }}% Match</span>
+            {% elif project.match_percentage >= 40 %}
+              <span class="match-badge match-medium">⚡ {{ project.match_percentage }}% Match</span>
+            {% elif project.match_percentage > 0 %}
+              <span class="match-badge match-low">💡 {{ project.match_percentage }}% Match</span>
+            {% else %}
+              <span class="match-badge match-zero">0% Match</span>
+            {% endif %}
+          </div>
+
+          <div class="project-meta">
+            <span class="project-owner">👤 {{ project.owner_name }}</span>
+            <span class="badge-team">👥 Team Size: {{ project.team_size }}</span>
+            {% if project.owner_id == session.get('user_id') %}
+              <span class="badge-owner">Your Project</span>
+            {% endif %}
+          </div>
+
+          <p class="project-description">{{ project.description }}</p>
+
+          <!-- Matching vs Missing Skills Breakdown -->
+          <div class="project-skills-section">
+            
+            <!-- Matching Skills -->
+            <div class="project-skills-title" style="color: var(--success-text);">
+              Matching Skills ({{ project.num_matching }}/{{ project.num_required }})
+            </div>
+            {% if project.matching_skills %}
+              <div class="skills-container" style="margin-bottom: 0.85rem;">
+                {% for skill in project.matching_skills %}
+                  <span class="skill-chip skill-chip-match">
+                    ✓ {{ skill.skill_name }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.85rem;">
+                No matching skills for your profile.
+              </p>
+            {% endif %}
+
+            <!-- Missing Skills (if any) -->
+            {% if project.missing_skills %}
+              <div class="project-skills-title" style="color: var(--text-muted);">
+                Missing Required Skills ({{ project.missing_skills|length }})
+              </div>
+              <div class="skills-container">
+                {% for skill in project.missing_skills %}
+                  <span class="skill-chip skill-chip-missing">
+                    {{ skill.skill_name }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+          </div>
+          {% if project.is_member %}
+            <p class="team-status team-status-member">You are a member of this team.</p>
+          {% elif project.has_pending_request %}
+            <p class="team-status team-status-pending">Join request pending.</p>
+          {% elif project.current_team_count >= project.team_size %}
+            <p class="team-status">This team is full.</p>
+          {% else %}
+            <form action="{{ url_for('request_to_join_project', project_id=project.id) }}" method="POST" class="join-request-form">
+              <input type="hidden" name="next_page" value="matches">
+              <button type="submit" class="nav-btn">Request to Join</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state" style="max-width: 600px; margin: 3rem auto;">
+      <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">No Projects Available for Matching</h3>
+      <p style="margin-bottom: 1.5rem;">There are no projects published in the system yet. Be the first to create one!</p>
+      <a href="{{ url_for('create_project') }}" class="nav-btn">Create a Project</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

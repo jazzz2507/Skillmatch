@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - SkillMatch{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <div>
+      <h1 class="welcome-title">Welcome back, {{ user.name }}! 👋</h1>
+      <p class="welcome-subtitle">Your SkillMatch profile, skills, and project matching overview.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('matches') }}" class="nav-btn">
+        🎯 Find Skill Matches
+      </a>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- User Account Summary Card -->
+    <div class="dashboard-card">
+      <h2 class="card-title">
+        <span>👤</span> Profile Overview
+      </h2>
+      <div class="profile-info">
+        <div class="info-item">
+          <span class="info-label">Full Name</span>
+          <span class="info-value">{{ user.name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email Address</span>
+          <span class="info-value">{{ user.email }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">GitHub Portfolio</span>
+          <span class="info-value">
+            {% if user.github_url %}
+              <a href="{{ user.github_url }}" target="_blank" rel="noopener noreferrer">
+                {{ user.github_url }}
+              </a>
+            {% else %}
+              <span style="color: var(--text-muted); font-weight: normal;">Not specified</span>
+            {% endif %}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Bio</span>
+          <span class="info-value" style="font-weight: normal; color: var(--text-secondary);">
+            {{ user.bio or 'No bio provided yet.' }}
+          </span>
+        </div>
+      </div>
+      <div style="margin-top: 1.5rem;">
+        <a href="{{ url_for('profile') }}" class="btn-secondary" style="display: block; text-align: center; text-decoration: none;">
+          Edit Profile & Bio
+        </a>
+      </div>
+    </div>
+
+    <!-- User Skills Card -->
+    <div class="dashboard-card">
+      <h2 class="card-title">
+        <span>⚡</span> My Skills
+      </h2>
+      
+      {% if user_skills %}
+        <div class="skills-container" style="margin-bottom: 1.5rem;">
+          {% for skill in user_skills %}
+            <span class="skill-chip">
+              {{ skill.skill_name }}
+            </span>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state" style="margin-bottom: 1.5rem;">
+          You haven't added any skills to your profile yet.
+        </div>
+      {% endif %}
+
+      <div style="margin-top: auto;">
+        <a href="{{ url_for('profile') }}" class="btn-secondary" style="display: block; text-align: center; text-decoration: none;">
+          Manage Skills in Profile &rarr;
+        </a>
+      </div>
+    </div>
+
+    <!-- Skill Matching Quick Card -->
+    <div class="dashboard-card">
+      <h2 class="card-title">
+        <span>🎯</span> Skill Matching Algorithm
+      </h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.95rem;">
+        Our matching engine compares your technical skills against required skills for all active student projects.
+      </p>
+      
+      <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-top: auto;">
+        <a href="{{ url_for('matches') }}" class="nav-btn" style="text-align: center;">
+          🎯 View Top Project Matches
+        </a>
+        <a href="{{ url_for('projects') }}" class="nav-btn-outline" style="text-align: center;">
+          Browse All Projects
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

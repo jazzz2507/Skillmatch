@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore Projects - SkillMatch{% endblock %}
+
+{% block content %}
+<div class="projects-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Explore Projects</h1>
+      <p class="page-subtitle">Discover student projects, view required skills, or launch your own collaboration.</p>
+    </div>
+    <div>
+      <a href="{{ url_for('create_project') }}" class="nav-btn">
+        + Create Project
+      </a>
+    </div>
+  </div>
+
+  {% if projects %}
+    <div class="projects-grid">
+      {% for project in projects %}
+        <div class="project-card">
+          <div class="project-header">
+            <h2 class="project-title">{{ project.title }}</h2>
+            {% if project.owner_id == session.get('user_id') %}
+              <span class="badge-owner">Your Project</span>
+            {% endif %}
+          </div>
+
+          <div class="project-meta">
+            <span class="project-owner">👤 {{ project.owner_name }}</span>
+            <span class="badge-team">👥 Team Size: {{ project.team_size }}</span>
+          </div>
+
+          <p class="project-description">{{ project.description }}</p>
+
+          <div class="project-skills-section">
+            <div class="project-skills-title">Required Skills</div>
+            {% if project.skills %}
+              <div class="skills-container">
+                {% for skill in project.skills %}
+                  <span class="skill-chip">{{ skill.skill_name }}</span>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p style="color: var(--text-muted); font-size: 0.85rem;">No skills specified</p>
+            {% endif %}
+          </div>
+
+          {% if project.owner_id == session.get('user_id') %}
+            <div class="project-actions">
+              <a href="{{ url_for('edit_project', project_id=project.id) }}" class="btn-edit">
+                Edit
+              </a>
+              <form action="{{ url_for('delete_project', project_id=project.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                <button type="submit" class="btn-danger">Delete</button>
+              </form>
+            </div>
+          {% elif project.is_member %}
+            <p class="team-status team-status-member">You are a member of this team.</p>
+          {% elif project.has_pending_request %}
+            <p class="team-status team-status-pending">Join request pending.</p>
+          {% elif project.current_team_count >= project.team_size %}
+            <p class="team-status">This team is full.</p>
+          {% else %}
+            <form action="{{ url_for('request_to_join_project', project_id=project.id) }}" method="POST" class="join-request-form">
+              <input type="hidden" name="next_page" value="projects">
+              <button type="submit" class="nav-btn">Request to Join</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state" style="max-width: 600px; margin: 3rem auto;">
+      <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">No Projects Found</h3>
+      <p style="margin-bottom: 1.5rem;">Be the first student to publish a project and recruit teammates!</p>
+      <a href="{{ url_for('create_project') }}" class="nav-btn">Create a Project Now</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SkillMatch - Connect & Collaborate{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('home') }}" class="brand-logo">
+        Skill<span>Match</span>
+      </a>
+
+      <ul class="nav-links">
+        {% if session.get('user_id') %}
+          <li><a href="{{ url_for('dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a></li>
+          <li><a href="{{ url_for('matches') }}" class="nav-link {% if request.endpoint == 'matches' %}active{% endif %}">Matches</a></li>
+          <li><a href="{{ url_for('projects') }}" class="nav-link {% if request.endpoint in ['projects', 'create_project', 'edit_project'] %}active{% endif %}">Projects</a></li>
+          <li><a href="{{ url_for('team_requests') }}" class="nav-link {% if request.endpoint in ['team_requests', 'respond_to_team_request'] %}active{% endif %}">Team Requests</a></li>
+          <li><a href="{{ url_for('profile') }}" class="nav-link {% if request.endpoint == 'profile' %}active{% endif %}">Profile</a></li>
+          <li><span class="nav-link" style="color: var(--text-muted);">Hi, {{ session.get('user_name') }}</span></li>
+          <li><a href="{{ url_for('logout') }}" class="nav-btn-outline">Logout</a></li>
+        {% else %}
+          <li><a href="{{ url_for('login') }}" class="nav-link {% if request.endpoint == 'login' %}active{% endif %}">Log In</a></li>
+          <li><a href="{{ url_for('register') }}" class="nav-btn">Get Started</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content Container -->
+  <main class="main-content">
+
+    <!-- Flash Messages Banner -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <span>{{ message }}</span>
+              <button class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2026 SkillMatch. Built for students to collaborate and grow.</p>
+  </footer>
+
+</body>
+</html>

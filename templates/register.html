@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account - SkillMatch{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Join SkillMatch to showcase skills & find teammates</p>
+    </div>
+
+    <form action="{{ url_for('register') }}" method="POST" class="auth-form">
+      <div class="form-group">
+        <label for="name" class="form-label">Full Name</label>
+        <input 
+          type="text" 
+          id="name" 
+          name="name" 
+          class="form-control" 
+          placeholder="e.g. Alex Rivera" 
+          value="{{ request.form.get('name', '') }}"
+          required 
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email" class="form-label">Email Address</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          class="form-control" 
+          placeholder="student@university.edu" 
+          value="{{ request.form.get('email', '') }}"
+          required 
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="form-control" 
+          placeholder="At least 6 characters" 
+          minlength="6"
+          required 
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password" class="form-label">Confirm Password</label>
+        <input 
+          type="password" 
+          id="confirm_password" 
+          name="confirm_password" 
+          class="form-control" 
+          placeholder="Re-enter your password" 
+          minlength="6"
+          required 
+        />
+      </div>
+
+      <button type="submit" class="btn-submit">Sign Up</button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="{{ url_for('login') }}" class="auth-link">Log In</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

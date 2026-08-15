@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}My Student Profile - SkillMatch{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  <div class="page-header">
+    <h1 class="page-title">Student Profile & Skills</h1>
+    <p class="page-subtitle">Manage your personal details, GitHub portfolio, and technical skills.</p>
+  </div>
+
+  <div class="profile-grid">
+    
+    <!-- Profile Information Card -->
+    <div class="profile-card">
+      <h2 class="card-title">
+        <span>✏️</span> Profile Details
+      </h2>
+
+      <form action="{{ url_for('update_profile') }}" method="POST">
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            name="name" 
+            class="form-control" 
+            value="{{ user.name }}" 
+            required 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address (Read-only)</label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-control" 
+            value="{{ user.email }}" 
+            disabled 
+            readonly 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="github_url" class="form-label">GitHub Portfolio URL</label>
+          <input 
+            type="text" 
+            id="github_url" 
+            name="github_url" 
+            class="form-control" 
+            placeholder="https://github.com/yourusername" 
+            value="{{ user.github_url or '' }}" 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="bio" class="form-label">Bio & Interests</label>
+          <textarea 
+            id="bio" 
+            name="bio" 
+            class="form-control" 
+            placeholder="Tell potential teammates about yourself, your project experience, and what you want to build..."
+          >{{ user.bio or '' }}</textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">Save Profile Changes</button>
+      </form>
+    </div>
+
+    <!-- Skills Management Card -->
+    <div class="profile-card">
+      <h2 class="card-title">
+        <span>⚡</span> Technical Skills
+      </h2>
+
+      <p style="color: var(--text-secondary); margin-bottom: 1.25rem; font-size: 0.9rem;">
+        Add skills to help match with relevant student projects and teammates.
+      </p>
+
+      <!-- Current Skills List -->
+      <div class="skills-section">
+        <label class="form-label">Your Current Skills</label>
+        
+        {% if user_skills %}
+          <div class="skills-container">
+            {% for skill in user_skills %}
+              <div class="skill-chip">
+                <span>{{ skill.skill_name }}</span>
+                <form action="{{ url_for('remove_skill', skill_id=skill.id) }}" method="POST" class="skill-remove-form">
+                  <button type="submit" class="skill-remove-btn" title="Remove {{ skill.skill_name }}">&times;</button>
+                </form>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="empty-state" style="margin-bottom: 1.5rem;">
+            No skills added yet. Choose from the existing skills below or create a custom skill!
+          </div>
+        {% endif %}
+      </div>
+
+      <hr class="section-divider">
+
+      <!-- Add Skill Form (From Existing Skills) -->
+      <form action="{{ url_for('add_skill') }}" method="POST" style="margin-bottom: 1.5rem;">
+        <div class="form-group">
+          <label for="skill_id" class="form-label">Select from Existing Skills</label>
+          <div class="form-row">
+            <select id="skill_id" name="skill_id" class="form-control">
+              <option value="">-- Choose a skill --</option>
+              {% for skill in all_skills %}
+                <option value="{{ skill.id }}">{{ skill.skill_name }}</option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn-secondary">Add</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Add Custom Skill Form -->
+      <form action="{{ url_for('add_skill') }}" method="POST">
+        <div class="form-group">
+          <label for="custom_skill" class="form-label">Or Add Custom Skill</label>
+          <div class="form-row">
+            <input 
+              type="text" 
+              id="custom_skill" 
+              name="custom_skill" 
+              class="form-control" 
+              placeholder="e.g. PyTorch, GraphQL, Rust" 
+            />
+            <button type="submit" class="btn-secondary">Create & Add</button>
+          </div>
+        </div>
+      </form>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

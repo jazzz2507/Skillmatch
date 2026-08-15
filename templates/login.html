@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In - SkillMatch{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">Welcome Back</h1>
+      <p class="auth-subtitle">Log in to manage your profile & skill matching</p>
+    </div>
+
+    <form action="{{ url_for('login') }}" method="POST" class="auth-form">
+      <div class="form-group">
+        <label for="email" class="form-label">Email Address</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          class="form-control" 
+          placeholder="student@university.edu" 
+          value="{{ request.form.get('email', '') }}"
+          required 
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="form-control" 
+          placeholder="Enter your password" 
+          required 
+        />
+      </div>
+
+      <button type="submit" class="btn-submit">Log In</button>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account yet? <a href="{{ url_for('register') }}" class="auth-link">Create Account</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
