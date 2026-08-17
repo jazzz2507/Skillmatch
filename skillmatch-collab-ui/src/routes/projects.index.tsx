@@ -88,11 +88,11 @@ function ProjectsPage() {
           <div className="mt-2 flex flex-wrap gap-1.5">
             {(catalog.data ?? []).map((skill) => (
               <SkillBadge
-                key={skill}
-                skill={skill}
+                key={skill.id}
+                skill={skill.id}
                 tone="outline"
-                active={skills.includes(skill)}
-                onClick={() => toggleSkill(skill)}
+                active={skills.includes(skill.name)}
+                onClick={() => toggleSkill(skill.name)}
               />
             ))}
           </div>

@@ -337,10 +337,10 @@ function ProfilePage() {
               </a>
             )}
           </section>
+          
+          {/* TECHNICAL SKILLS */}
 
-          /* =================================================
-              TECHNICAL SKILLS
-          ================================================== */
+          
           <section className="surface-card p-6">
             <h2 className="text-lg font-semibold">
               Technical skills
