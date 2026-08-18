@@ -280,7 +280,8 @@ This project helped in learning:
 Second-Year Computer Science Engineering Student
 
 * GitHub: https://github.com/jazzz2507
-* LinkedIn: Add your LinkedIn Profile Link
+* LinkedIn: www.linkedin.com/in/jashwanth-s-91476b380
+
 
 ---
 
