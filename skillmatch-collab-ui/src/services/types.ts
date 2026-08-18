@@ -77,6 +77,7 @@ export interface AuthCredentials {
 
 export interface RegisterPayload extends AuthCredentials {
   fullName: string;
+  confirmPassword: string;
 }
 
 export interface CreateProjectPayload {

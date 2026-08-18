@@ -70,7 +70,7 @@ export const projectService = {
     if (payload.title !== undefined) body["title"] = payload.title;
     if (payload.description !== undefined) body["description"] = payload.description;
     if (payload.teamSize !== undefined) body["team_size"] = payload.teamSize;
-    if (payload.requiredSkills !== undefined) body["required_skills"] = payload.requiredSkills;
+    if (payload.requiredSkills !== undefined) body["skill_ids"] = payload.requiredSkills;
     const response = await request<unknown>({
       path: `/api/projects/${encodeURIComponent(id)}`,
       method: "PATCH",

@@ -89,7 +89,7 @@ function ProjectsPage() {
             {(catalog.data ?? []).map((skill) => (
               <SkillBadge
                 key={skill.id}
-                skill={skill.id}
+                skill={skill.name}
                 tone="outline"
                 active={skills.includes(skill.name)}
                 onClick={() => toggleSkill(skill.name)}

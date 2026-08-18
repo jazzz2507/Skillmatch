@@ -46,6 +46,7 @@ function RegisterPage() {
         fullName: form.fullName,
         email: form.email,
         password: form.password,
+        confirmPassword: form.confirmPassword,
       });
       toast.success("Account created", { description: "Let's complete your profile next." });
       navigate({ to: "/dashboard" });

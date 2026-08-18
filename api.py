@@ -33,7 +33,15 @@ def user_skills(cursor, user_id):
 def member_count(cursor, project_id):
     cursor.execute('SELECT COUNT(*) AS total FROM project_members WHERE project_id=%s', (project_id,))
     return cursor.fetchone()['total'] + 1
-def project(cursor, project_id, viewer_id):
+def compute_match(required, skill_ids, skill_names):
+    """Shared by project() and match_results() so both use the same match math."""
+    matching = [s for s in required if s['id'] in skill_ids or s['skill_name'].lower().strip() in skill_names]
+    missing = [s for s in required if s['id'] not in skill_ids and s['skill_name'].lower().strip() not in skill_names]
+    total = len(required); percentage = round((len(matching) / total) * 100, 1) if total else 0
+    if isinstance(percentage, float) and percentage.is_integer(): percentage = int(percentage)
+    return matching, missing, percentage
+
+def project(cursor, project_id, viewer_id, viewer_skills=None):
     cursor.execute("""SELECT p.id,p.title,p.description,p.team_size,p.owner_id,p.created_at,u.name AS owner_name,
         EXISTS(SELECT 1 FROM project_members pm WHERE pm.project_id=p.id AND pm.user_id=%s) AS is_member,
         EXISTS(SELECT 1 FROM team_requests tr WHERE tr.project_id=p.id AND tr.sender_id=%s AND tr.status='pending') AS has_pending_request
@@ -41,7 +49,12 @@ def project(cursor, project_id, viewer_id):
     item = cursor.fetchone()
     if not item: return None
     cursor.execute('SELECT s.id,s.skill_name FROM skills s JOIN project_skills ps ON s.id=ps.skill_id WHERE ps.project_id=%s ORDER BY s.skill_name', (project_id,))
-    item['skills'] = cursor.fetchall(); item['current_team_count'] = member_count(cursor, project_id)
+    required = cursor.fetchall()
+    item['skills'] = required; item['current_team_count'] = member_count(cursor, project_id)
+    if viewer_skills is None: viewer_skills = user_skills(cursor, viewer_id)
+    ids = {s['id'] for s in viewer_skills}; names = {s['skill_name'].lower().strip() for s in viewer_skills}
+    matching, missing, percentage = compute_match(required, ids, names)
+    item.update(matching_skills=matching, missing_skills=missing, num_matching=len(matching), num_required=len(required), match_percentage=percentage)
     return item
 def project_payload(value):
     title, description, skills = str(value.get('title','')).strip(), str(value.get('description','')).strip(), value.get('skill_ids')
@@ -65,11 +78,8 @@ def match_results(cursor, user_id):
     for item in projects:
         cursor.execute('SELECT s.id,s.skill_name FROM skills s JOIN project_skills ps ON s.id=ps.skill_id WHERE ps.project_id=%s ORDER BY s.skill_name', (item['id'],))
         required = cursor.fetchall()
-        matching = [s for s in required if s['id'] in ids or s['skill_name'].lower().strip() in names]
-        missing = [s for s in required if s['id'] not in ids and s['skill_name'].lower().strip() not in names]
-        total = len(required); percentage = round((len(matching) / total) * 100, 1) if total else 0
-        if isinstance(percentage, float) and percentage.is_integer(): percentage = int(percentage)
-        item.update(required_skills=required, matching_skills=matching, missing_skills=missing, num_matching=len(matching), num_required=total, match_percentage=percentage, current_team_count=member_count(cursor, item['id']))
+        matching, missing, percentage = compute_match(required, ids, names)
+        item.update(required_skills=required, matching_skills=matching, missing_skills=missing, num_matching=len(matching), num_required=len(required), match_percentage=percentage, current_team_count=member_count(cursor, item['id']))
     projects.sort(key=lambda x: (x['match_percentage'], x['num_matching']), reverse=True)
     return skills, projects
 
@@ -200,7 +210,8 @@ def api_projects():
     try:
         con=get_db_connection();cur=con.cursor(dictionary=True);uid=session['user_id']
         if request.method=='GET':
-            cur.execute('SELECT id FROM projects ORDER BY created_at DESC');return jsonify(projects=[project(cur,row['id'],uid) for row in cur.fetchall()])
+            viewer_skills=user_skills(cur,uid)
+            cur.execute('SELECT id FROM projects ORDER BY created_at DESC');return jsonify(projects=[project(cur,row['id'],uid,viewer_skills) for row in cur.fetchall()])
         value=data();payload,message=project_payload(value or {})
         if message:return fail(message,400)
         title,description,size,skill_ids=payload

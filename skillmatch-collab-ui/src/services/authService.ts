@@ -19,9 +19,10 @@ export const authService = {
       path: "/api/auth/register",
       method: "POST",
       body: {
-        full_name: payload.fullName,
+        name: payload.fullName,
         email: payload.email,
         password: payload.password,
+        confirm_password: payload.confirmPassword,
       },
     });
     return { user: await authService.me() };
@@ -48,3 +49,4 @@ export const authService = {
     await request({ path: "/api/auth/logout", method: "POST", silent401: true }).catch(() => undefined);
   },
 };
+

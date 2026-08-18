@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/StateViews";
 import { profileService, projectService } from "@/services";
+import type { Skill } from "@/services/types";
 
 export const Route = createFileRoute("/projects/$projectId/edit")({
   head: () => ({
@@ -38,7 +39,7 @@ function EditProjectPage() {
   const catalog = useQuery({ queryKey: ["skills"], queryFn: () => profileService.getSkillCatalog() });
 
   const [form, setForm] = useState({ title: "", description: "", teamSize: "4" });
-  const [skills, setSkills] = useState<string[]>([]);
+  const [skills, setSkills] = useState<Skill[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -48,9 +49,19 @@ function EditProjectPage() {
         description: project.data.description,
         teamSize: String(project.data.teamSize || 4),
       });
-      setSkills(project.data.requiredSkills);
     }
   }, [project.data]);
+
+  // Required skills come back from the API as names only; resolve them
+  // against the skill catalog (which has ids) once both have loaded.
+  useEffect(() => {
+    if (project.data && catalog.data) {
+      const matched = project.data.requiredSkills
+        .map((name) => catalog.data.find((s) => s.name === name))
+        .filter((s): s is Skill => Boolean(s));
+      setSkills(matched);
+    }
+  }, [project.data, catalog.data]);
 
   const save = useMutation({
     mutationFn: () =>
@@ -58,7 +69,7 @@ function EditProjectPage() {
         title: form.title,
         description: form.description,
         teamSize: Number(form.teamSize),
-        requiredSkills: skills,
+        requiredSkills: skills.map((skill) => skill.id),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
@@ -141,8 +152,10 @@ function EditProjectPage() {
             <SkillSelector
               selected={skills}
               catalog={catalog.data ?? []}
-              onAdd={(s) => setSkills((prev) => (prev.includes(s) ? prev : [...prev, s]))}
-              onRemove={(s) => setSkills((prev) => prev.filter((x) => x !== s))}
+              onAdd={(skill) =>
+                setSkills((prev) => (prev.some((s) => s.id === skill.id) ? prev : [...prev, skill]))
+              }
+              onRemove={(skill) => setSkills((prev) => prev.filter((s) => s.id !== skill.id))}
             />
             {errors["skills"] && <p className="text-xs text-destructive">{errors["skills"]}</p>}
           </div>

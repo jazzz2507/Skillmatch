@@ -1,16 +1,19 @@
 import { request, unwrap } from "./apiClient";
-import { asArray, toTeamRequest } from "./mappers";
-import { authService } from "./authService";
+import { asArray, asRow, toTeamRequest } from "./mappers";
 import type { RequestStatus, TeamRequest } from "./types";
 
 async function fetchRequests(): Promise<TeamRequest[]> {
-  const [payload, me] = await Promise.all([
-    request<unknown>({ path: "/api/team-requests" }),
-    authService.currentUserOrNull(),
-  ]);
-  return asArray(unwrap(payload, "requests", "team_requests")).map((row) =>
-    toTeamRequest(row, me?.id),
-  );
+  const payload = await request<unknown>({ path: "/api/team-requests" });
+  const row = asRow(payload);
+  const incoming = asArray(row["incoming"]).map((r) => ({
+    ...toTeamRequest(r),
+    direction: "incoming" as const,
+  }));
+  const sent = asArray(row["sent"]).map((r) => ({
+    ...toTeamRequest(r),
+    direction: "sent" as const,
+  }));
+  return [...incoming, ...sent];
 }
 
 export const teamRequestService = {
