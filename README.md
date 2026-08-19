@@ -90,6 +90,22 @@ Students can create profiles, showcase their skills, discover projects, receive 
 
 ---
 
+## Deployment
+
+Frontend: React + TypeScript
+
+Backend: Flask
+
+Database: Aiven MySQL
+
+Hosting:
+- Render (Backend)
+- Aiven (Database)
+
+## Live Demo:
+🚀 https://skillmatch-9xq8.onrender.com
+
+
 ## 📂 Project Structure
 
 ```text
@@ -299,9 +315,12 @@ This project helped me gain practical experience in:
 
 Second-Year Computer Science Engineering Student
 
+Live Demo: https://skillmatch-9xq8.onrender.com
+
 **GitHub:** https://github.com/jazzz2507
 
 **LinkedIn:** www.linkedin.com/in/jashwanth-s-91476b380
+
 
 
 ---
