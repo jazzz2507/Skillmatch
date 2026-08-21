@@ -7,8 +7,22 @@ from mysql.connector import Error
 
 from db import get_db_connection, init_db_skills, init_team_request_tables
 from api import api_bp
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(
+    app,
+    supports_credentials=True,
+    origins=[
+        "https://skillmatch-gold.vercel.app"
+    ]
+)
+
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = True
+
+
+
 
 # Configure secret key for session management
 app.secret_key = os.getenv('SECRET_KEY', 'skillmatch_fallback_secret_key_2026')
